@@ -1,0 +1,85 @@
+#Data from https://openweathermap.org/api
+
+import requests
+from tkinter import *
+import math
+
+city_name = "Cartersville,US"
+api_key = "" #Enter your API key here
+
+def get_weather(api_key, city):
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+
+    response = requests.get(url).json()
+    print(response)
+
+    temp = response['main']['temp']
+    temp = math.floor((temp *1.8) - 459.67) #Convert to farenheight
+
+    feels_like = response['main']['feels_like']
+    feels_like = math.floor((feels_like * 1.8) - 459.67)  # Convert to farenheit
+
+    humidity = response['main']['humidity']
+
+    weather_conditions = response['weather'][0]['main']
+    weather_conditions_desc = response['weather'][0]['description']
+    weather_id = response['weather'][0]['id']
+
+    print(weather_id)
+
+
+    return {'temp': temp,
+            'feels_like': feels_like,
+            'humidity': humidity,
+            'weather_conditions': weather_conditions,
+            'weather_conditions_desc': weather_conditions_desc,
+            'weather_id': weather_id}
+
+weather = get_weather(api_key, city_name)
+print(weather['temp'])
+print(weather['feels_like'])
+print(weather['humidity'])
+
+root = Tk()
+root.geometry("500x500")
+root.title(f'{city_name[:-3]} Weather')
+
+def display_city_name(city):
+    city_label = Label(root, text=f"{city_name[:-3]}")
+    city_label.config(font=("Consolas", 28))
+    city_label.pack(side='top')
+
+def is_good_running_weather():
+    print(int(str(weather['weather_id'])[0]))
+    if weather['feels_like'] >= 60 and weather['feels_like'] <= 85 and int(str(weather['weather_id'])[0]) == 8:
+        return "Good Running Weather!"
+    else:
+        return "Not Good Running Weather!"
+
+
+def display_stats(weather):
+    temp = Label(root, text=f"Temperature: {weather['temp']} F")
+    feels_like = Label(root, text=f"Feels Like: {weather['feels_like']} F")
+    humidity = Label(root, text=f"Humidity: {weather['humidity']}%")
+    weather_conditions = Label(root, text=f"{weather['weather_conditions']}")
+    running_check = Label(root, text=f"{is_good_running_weather()}")
+
+    temp.config(font=("Consolas", 22))
+    feels_like.config(font=("Consolas", 16))
+    humidity.config(font=("Consolas", 16))
+    weather_conditions.config(font=("Consolas", 16))
+    running_check.config(font=("Consolas", 22))
+
+    temp.pack(side='top')
+    feels_like.pack(side='top')
+    humidity.pack(side='top')
+    weather_conditions.pack(side='top')
+    running_check.pack(side='top')
+
+
+display_city_name(city_name)
+display_stats(weather)
+mainloop()
+
+
+
